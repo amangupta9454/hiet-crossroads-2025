@@ -11,6 +11,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(''); // Add error state
   const [particles, setParticles] = useState([]);
   const navigate = useNavigate();
 
@@ -29,25 +30,39 @@ const Register = () => {
     setParticles(newParticles);
   }, []);
 
+  const validateForm = () => {
+    if (!name.trim()) return 'Name is required';
+    if (!email.trim()) return 'Email is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Invalid email';
+    if (!mobile) return 'Mobile is required';
+    if (!/^[6-9]\d{9}$/.test(mobile)) return 'Invalid mobile number';
+    if (password.length < 6) return 'Password must be at least 6 characters';
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!/^[6-9]\d{9}$/.test(mobile)) {
-      alert('Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9');
+    setError('');
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
       return;
     }
     setLoading(true);
     try {
       const response = await axios.post(`${apiUrl}/api/auth/register`, {
-        name,
-        email,
-        mobile,
-        password,
+        name: name.trim(),
+        email: email.trim(),
+        mobile: mobile.trim(),
+        password: password.trim(),
       });
       localStorage.setItem('token', response.data.token);
       alert('Registration successful. Welcome aboard!');
       navigate('/dashboard');
     } catch (err) {
-      alert(`Registration failed: ${err.response?.data?.msg || 'Server error'}`);
+      const msg = err.response?.data?.msg || 'Registration failed. Please try again.';
+      setError(msg);
+      console.error('Registration error:', err.response?.data);
     } finally {
       setLoading(false);
     }
@@ -55,6 +70,7 @@ const Register = () => {
 
   return (
     <div className="relative flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 overflow-hidden py-8 px-4 sm:py-12 md:py-16 lg:py-20">
+      {/* Particles and Orbs - unchanged */}
       <div className="absolute inset-0 overflow-hidden">
         {particles.map((particle) => (
           <div
@@ -74,8 +90,10 @@ const Register = () => {
       <div className="absolute top-20 left-10 w-48 h-48 md:w-72 md:h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
       <div className="absolute top-40 right-10 w-48 h-48 md:w-72 md:h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
       <div className="absolute bottom-20 left-1/2 w-48 h-48 md:w-72 md:h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+      
       <div className="relative w-full max-w-7xl mx-auto pt-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          {/* Left Side - Branding - unchanged */}
           <div className="hidden lg:flex flex-col justify-center space-y-8 px-8 animate-slideInLeft">
             <div className="space-y-6">
               <div className="inline-flex items-center space-x-3 bg-white/5 backdrop-blur-sm px-6 py-3 rounded-full border border-white/10">
@@ -107,27 +125,36 @@ const Register = () => {
               </div>
             </div>
           </div>
+
+          {/* Right Side - Form */}
           <div className="flex justify-center items-center px-4 sm:px-6 lg:px-8">
-            <form 
-              onSubmit={handleSubmit} 
-              className="relative bg-white/10 backdrop-blur-xl p-6 sm:p-8 lg:p-10 rounded-3xl shadow-2xl w-full max-w-md border border-white/20 transform transition-all duration-500 hover:shadow-blue-500/30 animate-slideInRight"
-            >
+            <form onSubmit={handleSubmit} className="relative bg-white/10 backdrop-blur-xl p-6 sm:p-8 lg:p-10 rounded-3xl shadow-2xl w-full max-w-md border border-white/20 transform transition-all duration-500 hover:shadow-blue-500/30 animate-slideInRight">
+              {/* Mobile Title - unchanged */}
               <div className="lg:hidden text-center mb-6">
                 <div className="inline-flex items-center space-x-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10 mb-4">
                   <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
                   <span className="text-cyan-400 font-semibold text-xs tracking-wide">CROSSROADS 2025</span>
                 </div>
               </div>
+
+              {/* Form Title - unchanged */}
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 mb-4 shadow-lg shadow-blue-500/50 animate-bounce-slow">
                   <UserPlus className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2 animate-fadeIn">
-                  Register With Us!
-                </h2>
+                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2 animate-fadeIn">Register With Us!</h2>
                 <p className="text-gray-400 text-sm">Join the innovation revolution</p>
                 <div className="h-1 w-24 bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 mx-auto rounded-full mt-3 animate-shimmer"></div>
               </div>
+
+              {/* Error Display */}
+              {error && (
+                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300 text-sm">
+                  {error}
+                </div>
+              )}
+
+              {/* Name Input - unchanged */}
               <div className="mb-5 group">
                 <div className="relative">
                   <input
@@ -137,11 +164,14 @@ const Register = () => {
                     onChange={(e) => setName(e.target.value)}
                     className="w-full p-4 pl-12 bg-white/5 border-2 border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:bg-white/10 transition-all duration-300 hover:border-white/30 focus:scale-[1.02] peer"
                     required
+                    minLength={2}
                   />
                   <UserPlus className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 peer-focus:text-cyan-400 transition-colors duration-300" />
                 </div>
                 <div className="h-0.5 bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500 rounded-full mt-1"></div>
               </div>
+
+              {/* Email Input - unchanged */}
               <div className="mb-5 group">
                 <div className="relative">
                   <input
@@ -156,22 +186,26 @@ const Register = () => {
                 </div>
                 <div className="h-0.5 bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500 rounded-full mt-1"></div>
               </div>
+
+              {/* Mobile Input - unchanged */}
               <div className="mb-5 group">
                 <div className="relative">
                   <input
                     type="tel"
                     placeholder="Mobile Number"
                     value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
+                    onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))} // Auto-format to digits only
                     className="w-full p-4 pl-12 bg-white/5 border-2 border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:bg-white/10 transition-all duration-300 hover:border-white/30 focus:scale-[1.02] peer"
                     required
                     pattern="^[6-9]\d{9}$"
-                    title="Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9"
+                    maxLength={10}
                   />
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 peer-focus:text-cyan-400 transition-colors duration-300" />
                 </div>
                 <div className="h-0.5 bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500 rounded-full mt-1"></div>
               </div>
+
+              {/* Password Input - unchanged */}
               <div className="mb-6 group">
                 <div className="relative">
                   <input
@@ -182,7 +216,6 @@ const Register = () => {
                     className="w-full p-4 pl-12 pr-12 bg-white/5 border-2 border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:bg-white/10 transition-all duration-300 hover:border-white/30 focus:scale-[1.02] peer"
                     required
                     minLength={6}
-                    title="Password must be at least 6 characters long"
                   />
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 peer-focus:text-cyan-400 transition-colors duration-300" />
                   <span
@@ -194,6 +227,8 @@ const Register = () => {
                 </div>
                 <div className="h-0.5 bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500 rounded-full mt-1"></div>
               </div>
+
+              {/* Submit Button - unchanged */}
               <button
                 type="submit"
                 className="relative w-full p-4 bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 text-white font-semibold rounded-xl overflow-hidden group hover:shadow-2xl hover:shadow-cyan-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95 mb-6"
@@ -214,12 +249,11 @@ const Register = () => {
                   )}
                 </span>
               </button>
+
+              {/* Login Link - unchanged */}
               <div className="text-center">
                 <span className="text-gray-300 text-sm">Already have an account? </span>
-                <Link 
-                  to="/login" 
-                  className="text-cyan-400 hover:text-teal-400 text-sm font-semibold transition-all duration-300 hover:underline"
-                >
+                <Link to="/login" className="text-cyan-400 hover:text-teal-400 text-sm font-semibold transition-all duration-300 hover:underline">
                   Login Now
                 </Link>
               </div>
@@ -227,6 +261,8 @@ const Register = () => {
           </div>
         </div>
       </div>
+
+      {/* Styles - unchanged */}
       <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) translateX(0); }
