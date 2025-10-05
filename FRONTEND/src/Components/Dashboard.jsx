@@ -75,7 +75,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [particles, setParticles] = useState([]);
   const navigate = useNavigate();
-  const apiUrl = import.meta.env.VITE_API_URL || 'https://hiet-crossroads.onrender.com';
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://hiet-crossroads-2025.onrender.com';
 
   useEffect(() => {
     const particleCount = 30;
