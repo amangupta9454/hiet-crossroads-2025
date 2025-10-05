@@ -31,6 +31,10 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!/^[6-9]\d{9}$/.test(mobile)) {
+      alert('Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9');
+      return;
+    }
     setLoading(true);
     try {
       const response = await axios.post(`${apiUrl}/api/auth/register`, {
@@ -177,6 +181,8 @@ const Register = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full p-4 pl-12 pr-12 bg-white/5 border-2 border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:bg-white/10 transition-all duration-300 hover:border-white/30 focus:scale-[1.02] peer"
                     required
+                    minLength={6}
+                    title="Password must be at least 6 characters long"
                   />
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 peer-focus:text-cyan-400 transition-colors duration-300" />
                   <span

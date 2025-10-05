@@ -15,20 +15,12 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-console.log('Environment variables:');
-console.log('MONGO_URI:', process.env.MONGO_URI ? 'Set' : 'Not set');
-console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Set' : 'Not set');
-console.log('EMAIL_USER:', process.env.EMAIL_USER);
-console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Set' : 'Not set');
-console.log('PORT:', process.env.PORT);
-console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Not set');
-
 connectDB();
 
 const app = express();
 
-app.use(cors("*"));
-app.use(express.json());
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
