@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
 
 const Registration = () => {
   const [user, setUser] = useState(null);
@@ -8,6 +9,9 @@ const Registration = () => {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_API_URL || 'https://hiet-crossroads.onrender.com';
+  const emailjsServiceId = 'service_1l04eud';
+  const emailjsTemplateId = 'template_z5vr25f';
+  const emailjsPublicKey = 'aISTiwHw6juUInxbl';
 
   const events = [
     'code-puzzle',
@@ -109,10 +113,23 @@ const Registration = () => {
     }
 
     try {
+      // Register the event
       await axios.post(`${apiUrl}/api/events/register`, submitData, {
         headers: { 'x-auth-token': localStorage.getItem('token'), 'Content-Type': 'multipart/form-data' },
         timeout: 30000
       });
+
+      // Send confirmation email using EmailJS
+      const emailParams = {
+        to_email: user.email,
+        teamLeaderName: user.name,
+        teamName: formData.teamName,
+        teamSize: formData.teamSize + 1, // Including team leader
+        eventName: formData.event.replace(/-/g, ' ').toUpperCase(),
+      };
+
+      await emailjs.send(emailjsServiceId, emailjsTemplateId, emailParams, emailjsPublicKey);
+
       alert('Registration successful! Check your email.');
       navigate('/dashboard');
     } catch (err) {
