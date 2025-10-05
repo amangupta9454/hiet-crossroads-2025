@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './Components/Login';
 import Register from './Components/Register';
-import VerifyOTP from './Components/VerifyOTP';
+import VerifyOTP from './VerifyOTP'
 import Dashboard from './Components/Dashboard';
 import Registration from './Components/Registration';
 import AdminLogin from './Components/AdminLogin';
